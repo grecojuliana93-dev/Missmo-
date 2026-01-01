@@ -6,25 +6,68 @@
     <title>Seryosong Tanong</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: black; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; text-align: center; }
-        .btn { background: white; color: black; border: none; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 10px; margin: 10px; }
-        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; z-index: 100; }
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* Quiz UI */
+        .container { z-index: 5; padding: 20px; }
+        h1 { font-size: 2.2rem; margin-bottom: 30px; line-height: 1.4; }
+        .btn {
+            background: white;
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 10px;
+        }
+
+        /* Fullscreen Video Player */
+        #video-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: black;
+            z-index: 100;
+        }
         video { width: 100%; height: 100%; object-fit: contain; }
-        #shield { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: transparent; }
+
+        /* Shield to block pause/controls */
+        #shield {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 200;
+            background: transparent;
+        }
+
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="main-ui">
+    <div class="container" id="main-ui">
         <div id="start-step">
             <h1>Handa ka na bang maglaro?</h1>
             <button class="btn" onclick="startQuiz()">Oo</button>
         </div>
+
         <div id="quiz-step" class="hidden">
             <h1 id="question-text"></h1>
-            <button class="btn" onclick="handleLastAnswer('yes')">Oo</button>
-            <button class="btn" onclick="handleLastAnswer('no')">Hindi</button>
+            <button class="btn" id="btn-yes" onclick="handleLastAnswer('yes')">Oo</button>
+            <button class="btn" id="btn-no" onclick="handleLastAnswer('no')">Hindi</button>
         </div>
     </div>
 
@@ -36,9 +79,15 @@
     </div>
 
     <script>
-        const questions = ["Kumain ka na ba?", "Masaya ka ba today?", "Miss mo?"];
+        const questions = [
+            "Kumain ka na ba?",
+            "Masaya ka ba today?",
+            "Miss mo?"
+        ];
+
         let currentIdx = 0;
         const player = document.getElementById('player');
+        const videoSrc = document.getElementById('video-src');
 
         function startQuiz() {
             document.getElementById('start-step').classList.add('hidden');
@@ -55,18 +104,26 @@
                 currentIdx++;
                 showQuestion();
             } else {
-                // TUGMA SA FILENAMES MO SA GITHUB
-                const videoSrc = document.getElementById('video-src');
+                // AUTOMATIC PLAY TRIGGER
+                // Direct link to files in your repo root
                 videoSrc.src = (choice === 'yes') ? "yes.mp4" : "no.mp4";
                 
                 document.getElementById('main-ui').style.display = 'none';
                 document.getElementById('video-container').style.display = 'block';
+                
                 player.load();
-                player.play();
+                // Dito na yung automatic play
+                player.play().catch(e => console.log("Play failed", e));
 
+                // Kapag tapos na ang video, ipakita ang ban message
                 player.onended = () => {
                     document.getElementById('video-container').style.display = 'none';
-                    document.body.innerHTML = '<h1 style="color:red; font-size:3rem;">BANNED KA MUNA</h1><p>Dahilan: Walang karapatan.</p>';
+                    document.body.innerHTML = `
+                        <div style="color:red; font-family: monospace;">
+                            <h1 style="font-size: 3rem;">BANNED KA MUNA</h1>
+                            <p style="font-size: 1.5rem; color: white;">Dahilan: Walang karapatan.</p>
+                        </div>
+                    `;
                     alert("Sakit banned ka muna.");
                 };
             }
