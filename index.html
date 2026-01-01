@@ -6,76 +6,21 @@
     <title>Seryosong Tanong</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: black;
-            color: white;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .container { z-index: 5; }
-        h1 { font-size: 2.2rem; margin-bottom: 30px; }
-        
-        .btn {
-            background: white;
-            color: black;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 10px;
-            margin: 10px;
-            transition: 0.2s;
-        }
-
-        .btn:active { transform: scale(0.95); }
-
-        /* Fullscreen Video Overlay */
-        #video-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: black;
-            z-index: 100;
-        }
-
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        /* Shield: Invisible layer para bawal i-pause */
-        #shield {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 200;
-            background: transparent;
-        }
-
+        body { background-color: black; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; text-align: center; }
+        .btn { background: white; color: black; border: none; padding: 15px 40px; font-size: 1.2rem; font-weight: bold; cursor: pointer; border-radius: 10px; margin: 10px; }
+        #video-container { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; z-index: 100; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        #shield { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; background: transparent; }
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="main-ui">
+    <div id="main-ui">
         <div id="start-step">
             <h1>Handa ka na bang maglaro?</h1>
             <button class="btn" onclick="startQuiz()">Oo</button>
         </div>
-
         <div id="quiz-step" class="hidden">
             <h1 id="question-text"></h1>
             <button class="btn" onclick="handleLastAnswer('yes')">Oo</button>
@@ -91,16 +36,9 @@
     </div>
 
     <script>
-        const questions = [
-            "Kumain ka na ba?",
-            "Naligo ka na ba?",
-            "Masaya ka ba today?",
-            "Miss mo?"
-        ];
-
+        const questions = ["Kumain ka na ba?", "Masaya ka ba today?", "Miss mo?"];
         let currentIdx = 0;
         const player = document.getElementById('player');
-        const videoSrc = document.getElementById('video-src');
 
         function startQuiz() {
             document.getElementById('start-step').classList.add('hidden');
@@ -117,30 +55,21 @@
                 currentIdx++;
                 showQuestion();
             } else {
-                // Dahil magkakasama na sila sa isang folder:
+                // TUGMA SA FILENAMES MO SA GITHUB
+                const videoSrc = document.getElementById('video-src');
                 videoSrc.src = (choice === 'yes') ? "yes.mp4" : "no.mp4";
-                playPrank();
+                
+                document.getElementById('main-ui').style.display = 'none';
+                document.getElementById('video-container').style.display = 'block';
+                player.load();
+                player.play();
+
+                player.onended = () => {
+                    document.getElementById('video-container').style.display = 'none';
+                    document.body.innerHTML = '<h1 style="color:red; font-size:3rem;">BANNED KA MUNA</h1><p>Dahilan: Walang karapatan.</p>';
+                    alert("Sakit banned ka muna.");
+                };
             }
-        }
-
-        function playPrank() {
-            document.getElementById('main-ui').style.display = 'none';
-            document.getElementById('video-container').style.display = 'block';
-            player.load();
-            player.play();
-
-            // Kapag tapos na ang video, automatic ban screen
-            player.onended = () => {
-                document.getElementById('video-container').style.display = 'none';
-                document.body.innerHTML = `
-                    <div style="color: red; font-family: 'Courier New', monospace; padding: 20px;">
-                        <h1 style="font-size: 3.5rem;">BANNED KA MUNA</h1>
-                        <p style="font-size: 1.5rem; color: white; margin-top: 10px;">Dahilan: Walang karapatan.</p>
-                        <p style="margin-top: 30px; font-style: italic;">Sakit 'no? Banned ka muna.</p>
-                    </div>
-                `;
-                alert("Sakit banned ka muna");
-            };
         }
     </script>
 </body>
